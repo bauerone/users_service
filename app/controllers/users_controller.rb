@@ -38,6 +38,48 @@ class UsersController < ApplicationController
     @user.destroy!
   end
 
+  def add_product_to_shopping_cart
+    carts = Faraday.new(
+      url: 'http://localhost:3002',
+      headers: {'Content-Type' => 'application/json'}
+    )
+
+    response = carts.post('/add_to_cart') do |req|
+      req.body = { user_id: params[:user_id], product_id: params[:product_id] }.to_json
+    end
+  end
+
+  def shopping_cart
+    carts = Faraday.new(
+      url: 'http://localhost:3002',
+      headers: {'Content-Type' => 'application/json'}
+    )
+
+    cart_response = carts.get('/current_user_shopping_cart', { user_id: params[:id] } )
+
+    products = Faraday.new(
+      url: 'http://localhost:3001',
+      headers: {'Content-Type' => 'application/json'}
+    )
+    
+    response = JSON.parse(cart_response.body).map do |product_id|
+      JSON.parse(products.get("/products/#{product_id}").body)
+    end
+  
+    render json: response
+  end
+
+  def clean_cart
+    carts = Faraday.new(
+      url: 'http://localhost:3002',
+      headers: {'Content-Type' => 'application/json'}
+    )
+
+    cart_response = carts.delete('/delete_current_user_cart', { user_id: params[:id] } )
+
+    render json: cart_response.body
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user

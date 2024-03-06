@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
   resources :users
+
+  post '/add_product_to_shopping_cart', to: 'users#add_product_to_shopping_cart'
+  get '/users/:id/shopping_cart', to: 'users#shopping_cart'
+  get '/users/:id/clean_cart', to: 'users#clean_cart'
+ 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
